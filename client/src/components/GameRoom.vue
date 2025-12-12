@@ -1,7 +1,5 @@
 <template>
   <div class="game-room">
-    <!-- vfx-grid 已經移到 App.vue 或 global.css 做為全局背景 -->
-
     <div class="status-bar">
       <div class="room-tag">ROOM: {{ roomInfo.id.substr(0,4) }}</div>
       <div class="score-tag">
@@ -9,27 +7,31 @@
         <span v-if="showScoreDiff" class="score-popup">+{{ scoreDiff }}</span>
       </div>
     </div>
-    
+
+    <!-- 狀態 1: 等待開始 -->
     <div v-if="status === 'waiting'" class="waiting-area">
       <h2 class="neon-text">SYSTEM STANDBY</h2>
       <div class="player-list">
         <div v-for="p in roomInfo.players" :key="p.id" 
              class="player-card" :class="{ 'ready': roomInfo.readyStatus[p.id] }">
-          <img :src="p.photoURL || 'https://cdn-icons-png.flaticon.com/512/847/847969.png'" 
-          style="width:30px; height:30px; border-radius:50%; display:block; margin:0 auto;">
+          <!-- 顯示頭像 -->
+          <img :src="p.photoURL || 'https://cdn-icons-png.flaticon.com/512/847/847969.png'" class="p-avatar">
           <div class="p-name">{{ p.name }}</div>
           <div class="p-status">{{ roomInfo.readyStatus[p.id] ? 'READY' : '...' }}</div>
         </div>
       </div>
       <button v-if="!amIReady" class="btn-ready" @click="sendReady">INITIALIZE</button>
-      <div v-else class="ready-msg">WAITING FOR PLAYERS...</div>
+      <div v-else class="ready-msg">WAITING FOR OTHERS...</div>
     </div>
 
+    <!-- 狀態 2: 遊戲進行中 -->
     <div v-else-if="status === 'playing'" class="game-area">
-      <div class="timer-container" v-if="phase === 'answering'">
+      <!-- 計時器 -->
+      <div class="timer-container" v-if="phase === 'answering' || phase === 'waiting_others'">
+        <!-- key 用 currentQuestion.id 確保切換題目時動畫重置 -->
         <div class="timer-bar" :key="currentQuestion?.id"></div>
       </div>
-      <div v-else class="timer-placeholder">REVEALING DATA...</div>
+      <div v-else class="timer-placeholder">DATA ANALYSIS...</div>
 
       <div v-if="currentQuestion" class="question-box">
         <div class="category">{{ currentQuestion.category }}</div>
@@ -42,22 +44,29 @@
             class="opt-btn"
             :class="getOptionClass(index)"
             @click="handleAnswer(index)"
-            :disabled="hasAnswered || phase === 'reveal'"
+            :disabled="hasAnswered || phase !== 'answering'"
           >
+            <!-- 顯示選取狀態或結果 -->
             <span class="icon-marker" v-if="phase === 'reveal'">
                <span v-if="index === correctIndex">✅</span>
-               <span v-else-if="index === selectedIndex">❌</span>
+               <span v-else-if="index === selectedIndex && index !== correctIndex">❌</span>
                <span v-else>⚫</span>
             </span>
             <span class="index" v-else>0{{ index + 1 }}</span>
             {{ opt }}
           </button>
         </div>
+
+        <!-- ✨ 新增：等待對手提示 -->
+        <div v-if="phase === 'waiting_others'" class="waiting-msg">
+          WAITING FOR OPPONENTS...
+        </div>
       </div>
     </div>
 
+    <!-- 狀態 3: 遊戲結束 -->
     <div v-else-if="status === 'finished'" class="result-area">
-      <h1 class="neon-text">GAME OVER</h1>
+      <h1 class="neon-text">MISSION COMPLETE</h1>
       <div class="rank-list">
         <div v-for="(score, id) in scores" :key="id" class="rank-item">
           <span>{{ getPlayerName(id) }}</span>
@@ -74,7 +83,8 @@ import { ref, computed } from 'vue';
 
 const props = defineProps(['socket', 'roomInfo']);
 const status = ref('waiting');
-const phase = ref('answering'); // answering | reveal
+// phase 狀態: answering (作答中) | waiting_others (等別人) | reveal (揭曉)
+const phase = ref('answering'); 
 const currentQuestion = ref(null);
 const selectedIndex = ref(-1);
 const correctIndex = ref(-1);
@@ -83,7 +93,6 @@ const scores = ref({});
 const scoreDiff = ref(0);
 const showScoreDiff = ref(false);
 
-// 音效 (建議將來也移到獨立的 js 模組)
 const audio = {
   bgm: new Audio('/audio/bgm.mp3'),
   correct: new Audio('/audio/correct.mp3'),
@@ -107,21 +116,33 @@ const sendReady = () => {
 
 const handleAnswer = (index) => {
   if (hasAnswered.value) return;
+  
   hasAnswered.value = true;
   selectedIndex.value = index;
+  
+  // ✨ 改成：送出後進入「等待他人」狀態，不馬上揭曉
+  phase.value = 'waiting_others';
+  
   props.socket.emit('submitAnswer', { roomId: props.roomInfo.id, answerIndex: index });
 };
 
-// 計算按鈕樣式
 const getOptionClass = (index) => {
   if (phase.value === 'answering') {
+    return '';
+  } 
+  else if (phase.value === 'waiting_others') {
+    // 等待時，只高亮自己選的，不顯示對錯
     if (index === selectedIndex.value) return 'selected-waiting';
-  } else {
+  }
+  else if (phase.value === 'reveal') {
+    // 揭曉時，顯示對錯
     if (index === correctIndex.value) return 'correct-reveal';
     if (index === selectedIndex.value && index !== correctIndex.value) return 'wrong-reveal';
   }
   return '';
 };
+
+// --- Socket 監聽 ---
 
 props.socket.on('gameStart', () => {
   status.value = 'playing';
@@ -130,47 +151,53 @@ props.socket.on('gameStart', () => {
 
 props.socket.on('newQuestion', (q) => {
   currentQuestion.value = q;
-  phase.value = 'answering';
+  phase.value = 'answering'; // 重置為作答狀態
   hasAnswered.value = false;
   selectedIndex.value = -1;
   correctIndex.value = -1;
 });
 
+// 收到結果 (這時候才揭曉)
 props.socket.on('roundResult', (result) => {
   phase.value = 'reveal';
   correctIndex.value = result.correctAnswer;
-
-  // --- 新增：計算分數差 ---
-  const oldScore = scores.value[myId] || 0;     // 取得目前分數
-  const newScore = result.scores[myId] || 0;    // 取得新分數
-  const diff = newScore - oldScore;             // 計算差額
+  
+  // 計算分數差
+  const oldScore = scores.value[myId] || 0;
+  const newScore = result.scores[myId] || 0;
+  const diff = newScore - oldScore;
 
   if (diff > 0) {
     scoreDiff.value = diff;
     showScoreDiff.value = true;
-    
-    // 2秒後隱藏動畫
-    setTimeout(() => {
-      showScoreDiff.value = false;
-    }, 2000);
-  }
-  // --------------------
-
-    // 更新分數
-  scores.value = result.scores;
-
-  // 播放音效 (保持原有邏輯)
-  if (selectedIndex.value === result.correctAnswer) {
+    setTimeout(() => { showScoreDiff.value = false; }, 2000);
     audio.correct.play();
-  } else if (selectedIndex.value !== -1) {
-    audio.wrong.play(); 
   } else {
+    // 沒加分 = 答錯 或 沒答
     audio.wrong.play();
   }
-  });
+
+  scores.value = result.scores;
+});
+
 props.socket.on('gameOver', (finalScores) => {
   scores.value = finalScores;
   status.value = 'finished';
   audio.bgm.pause();
 });
 </script>
+
+<style scoped>
+/* 補上等待文字的樣式 */
+.waiting-msg {
+  text-align: center;
+  color: var(--c-primary);
+  margin-top: 20px;
+  animation: pulse 1.5s infinite;
+  letter-spacing: 2px;
+}
+
+.p-avatar {
+    width: 30px; height: 30px; border-radius: 50%; margin-bottom: 5px;
+}
+</style>
