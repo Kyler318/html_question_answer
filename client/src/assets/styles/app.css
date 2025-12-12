@@ -41,10 +41,10 @@
 
 /* ✨ 新增：載入中文字動畫 */
 .loading-text { 
-  text-align: center; 
-  color: var(--c-primary); 
-  font-size: 1.5rem; 
-  animation: pulse 1s infinite; 
+  text-align: center;
+  color: var(--c-primary);
+  font-size: 1.5rem;
+  animation: pulse 1s infinite;
   margin-top: 100px;
   font-family: var(--font-hud);
   letter-spacing: 2px;

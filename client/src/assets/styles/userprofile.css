@@ -1,28 +1,69 @@
-/* userprofile.css - 右上角個人中心 */
-.profile-panel {
-  /* 👇 修改這裡：改用 fixed，讓它固定在螢幕視窗右上角 */
-  position: fixed; 
+/* userprofile.css - 設定按鈕與彈出面板 */
+
+/* 1. 外層容器：定位在螢幕右上角 */
+.profile-wrapper {
+  position: fixed;
   top: 20px;
   right: 20px;
+  z-index: 2000; /* 確保在最上層，蓋過遊戲介面 */
+}
+
+/* 2. 設定按鈕 (常駐的小按鈕) */
+.settings-toggle {
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid var(--c-primary);
+  color: var(--c-primary);
+  padding: 10px 15px;
+  cursor: pointer;
+  font-family: var(--font-hud);
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 8px; /* 圖示與文字的間距 */
+  transition: 0.3s;
+  backdrop-filter: blur(5px);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.settings-toggle:hover, .settings-toggle.active {
+  background: var(--c-primary);
+  color: #000;
+  box-shadow: 0 0 15px var(--c-primary);
+}
+
+.settings-toggle .icon {
+  font-size: 1.2rem;
+}
+
+/* 3. 彈出面板 (點擊後才會出現) */
+.profile-panel {
+  position: absolute;
+  top: 100%; /* 出現在按鈕的正下方 */
+  right: 0;    /* 對齊右邊 */
+  margin-top: 15px;
   
   background: var(--c-panel);
   border: 1px solid var(--c-primary);
   padding: 20px;
-  z-index: 1000; /* 確保它在最上層 */
+  width: 240px;
   text-align: center;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.7);
-  width: 200px; /* 稍微調窄一點 */
-  backdrop-filter: blur(5px);
-  
-  /* 加入一點進場動畫 */
-  animation: slideIn 0.5s ease-out;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(10px);
+  z-index: 2001;
 }
 
-@keyframes slideIn {
-  from { transform: translateX(100%); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
+/* 面板標題 */
+.panel-header {
+  color: var(--c-text-dim);
+  font-size: 0.8rem;
+  border-bottom: 1px solid #333;
+  padding-bottom: 10px;
+  margin-bottom: 15px;
+  letter-spacing: 2px;
+  font-weight: bold;
 }
 
+/* 頭像區域 */
 .avatar-section {
   margin-bottom: 15px;
 }
@@ -36,12 +77,6 @@
   overflow: hidden;
   background: #000;
   box-shadow: 0 0 10px var(--c-primary-dim);
-  transition: 0.3s;
-}
-
-.avatar-frame:hover {
-  box-shadow: 0 0 15px var(--c-primary);
-  transform: scale(1.05);
 }
 
 .avatar-img {
@@ -50,42 +85,21 @@
   object-fit: cover;
 }
 
-.upload-btn {
-  display: inline-block;
-  font-size: 0.6rem; /* 字體調小一點 */
-  color: var(--c-text);
-  background: rgba(255, 255, 255, 0.05);
-  padding: 4px 8px;
-  cursor: pointer;
-  border: 1px solid #444;
-  transition: 0.2s;
-  margin-top: 5px;
-}
-
-.upload-btn:hover {
-  border-color: var(--c-primary);
-  color: var(--c-primary);
-}
-
+/* 用戶資訊 */
 .user-info {
-  margin-bottom: 15px;
-  border-top: 1px solid #333;
-  padding-top: 10px;
+  margin-bottom: 20px;
 }
 
-/* 暱稱大字 */
 .display-name {
   color: var(--c-primary);
-  font-size: 1rem;
+  font-size: 1.1rem;
   font-weight: bold;
   text-transform: uppercase;
-  margin-bottom: 3px;
-  text-shadow: 0 0 8px var(--c-primary-dim);
+  margin-bottom: 5px;
   font-family: var(--font-hud);
-  word-wrap: break-word; /* 防止名字太長跑版 */
+  word-wrap: break-word;
 }
 
-/* ID 小字 */
 .id-code {
   color: var(--c-text-dim);
   font-size: 0.7rem;
@@ -95,14 +109,15 @@
 /* 登出按鈕 */
 .logout-btn {
   width: 100%;
-  padding: 5px;
-  font-size: 0.7rem;
+  padding: 10px;
   background: transparent;
   border: 1px solid var(--c-secondary);
   color: var(--c-secondary);
   cursor: pointer;
-  letter-spacing: 1px;
   transition: 0.2s;
+  font-family: var(--font-cyber);
+  font-weight: bold;
+  letter-spacing: 1px;
 }
 
 .logout-btn:hover {
@@ -111,39 +126,13 @@
   box-shadow: 0 0 10px var(--c-secondary-dim);
 }
 
-/* 📱 手機版 RWD 設定 (當螢幕小於 768px 時) */
-@media (max-width: 768px) {
-  .profile-panel {
-    position: relative; /* 改回相對定位 */
-    top: auto;
-    right: auto;
-    width: 100%;
-    max-width: 300px;
-    margin: 0 auto 20px auto; /* 置中並與下方內容保持距離 */
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px;
-  }
-  
-  .avatar-frame {
-    width: 50px;
-    height: 50px;
-    margin: 0;
-  }
-  
-  .upload-btn { display: none; } /* 手機版隱藏上傳按鈕，節省空間 */
-  
-  .user-info {
-    border: none;
-    padding: 0;
-    margin: 0 10px;
-    text-align: left;
-    flex-grow: 1;
-  }
-  
-  .logout-btn {
-    width: auto;
-    padding: 5px 10px;
-  }
+/* 4. Vue Transition 動畫 (淡入淡出 + 位移) */
+/* 這些 class 會對應 Vue 的 <transition name="fade"> */
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
+  transform: translateY(-10px); /* 讓它有一點往下滑出的感覺 */
 }
