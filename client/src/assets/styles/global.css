@@ -1,0 +1,39 @@
+* {
+  box-sizing: border-box;
+  user-select: none; /* 防止遊戲中選取文字 */
+}
+
+body {
+  margin: 0;
+  background-color: var(--c-bg);
+  color: var(--c-text);
+  font-family: var(--font-cyber);
+  overflow: hidden; /* 防止捲動 */
+  min-height: 100vh;
+}
+
+/* 背景網格特效 (共用) */
+.vfx-grid {
+  position: fixed; /* 改為 fixed 覆蓋全屏 */
+  top: -50%; left: -50%; width: 200%; height: 200%;
+  background: linear-gradient(rgba(0, 243, 255, 0.03) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(0, 243, 255, 0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  transform: perspective(500px) rotateX(60deg);
+  animation: gridMove 20s linear infinite;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* 共用霓虹文字 */
+.neon-text {
+  text-shadow: 0 0 10px var(--c-primary);
+  color: var(--c-primary);
+  letter-spacing: 2px;
+}
+
+button {
+  cursor: pointer;
+  font-family: var(--font-cyber);
+  transition: all 0.2s ease;
+}

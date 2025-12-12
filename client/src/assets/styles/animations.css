@@ -1,0 +1,35 @@
+/* 掃描線動畫 */
+@keyframes scan {
+  0% { top: 0; opacity: 0; }
+  50% { opacity: 1; }
+  100% { top: 100%; opacity: 0; }
+}
+
+/* 背景網格移動 */
+@keyframes gridMove {
+  to { transform: translateY(30px); }
+}
+
+/* 計時器倒數條 */
+@keyframes timer-shrink {
+  0% { width: 100%; background: var(--c-primary); }
+  50% { background: var(--c-warning); }
+  100% { width: 0%; background: var(--c-secondary); }
+}
+
+/* 文字故障效果 (Glitch) */
+@keyframes glitch-skew {
+  0% { transform: skew(0deg); }
+  20% { transform: skew(-2deg); }
+  40% { transform: skew(2deg); }
+  60% { transform: skew(-1deg); }
+  80% { transform: skew(1deg); }
+  100% { transform: skew(0deg); }
+}
+
+/* 呼吸燈 */
+@keyframes pulse {
+  0% { box-shadow: 0 0 5px var(--c-primary-dim); }
+  50% { box-shadow: 0 0 20px var(--c-primary); }
+  100% { box-shadow: 0 0 5px var(--c-primary-dim); }
+}

@@ -1,0 +1,110 @@
+.lobby-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  position: relative;
+}
+
+.cyber-box {
+  width: 100%;
+  max-width: 400px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* 裝飾性掃描線 */
+.scan-line {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: var(--c-primary);
+  box-shadow: 0 0 10px var(--c-primary);
+  animation: scan 2.5s linear infinite;
+  z-index: 10;
+}
+
+.header h3 {
+  color: var(--c-primary);
+  text-align: center;
+  border-bottom: 2px solid #333;
+  padding-bottom: 15px;
+  margin-bottom: 30px;
+  font-family: var(--font-hud);
+  letter-spacing: 4px;
+}
+
+.form-group label {
+  color: var(--c-text-dim);
+  font-size: 0.8rem;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.form-group input {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid #444;
+  color: var(--c-primary);
+  padding: 15px;
+  font-size: 1.2rem;
+  font-family: var(--font-cyber);
+  outline: none;
+  transition: 0.3s;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.form-group input:focus {
+  border-color: var(--c-secondary);
+  box-shadow: 0 0 15px var(--c-secondary-dim);
+}
+
+.mode-group {
+  margin-top: 30px;
+}
+
+.grid-btns {
+  display: grid;
+  gap: 15px;
+}
+
+.mode-btn {
+  background: linear-gradient(90deg, transparent 0%, var(--c-primary-dim) 100%);
+  border: 1px solid #444;
+  color: var(--c-text);
+  padding: 15px 20px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.2s;
+}
+
+.mode-btn:hover {
+  border-color: var(--c-primary);
+  transform: translateX(5px);
+  box-shadow: -5px 0 0 var(--c-primary);
+}
+
+.mode-btn.danger:hover {
+  border-color: var(--c-secondary);
+  box-shadow: -5px 0 0 var(--c-secondary);
+  background: linear-gradient(90deg, transparent 0%, var(--c-secondary-dim) 100%);
+}
+
+.mode-btn .glitch-text {
+  font-family: var(--font-hud);
+  font-size: 1.1rem;
+}
+.mode-btn:hover .glitch-text {
+  animation: glitch-skew 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) both infinite;
+}
+.mode-btn .sub {
+    font-size: 0.8rem;
+    color: #666;
+}
+.mode-btn:hover .sub {
+    color: #aaa;
+}

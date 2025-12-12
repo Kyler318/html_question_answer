@@ -1,0 +1,149 @@
+/* userprofile.css - 右上角個人中心 */
+.profile-panel {
+  /* 👇 修改這裡：改用 fixed，讓它固定在螢幕視窗右上角 */
+  position: fixed; 
+  top: 20px;
+  right: 20px;
+  
+  background: var(--c-panel);
+  border: 1px solid var(--c-primary);
+  padding: 20px;
+  z-index: 1000; /* 確保它在最上層 */
+  text-align: center;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.7);
+  width: 200px; /* 稍微調窄一點 */
+  backdrop-filter: blur(5px);
+  
+  /* 加入一點進場動畫 */
+  animation: slideIn 0.5s ease-out;
+}
+
+@keyframes slideIn {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+.avatar-section {
+  margin-bottom: 15px;
+}
+
+.avatar-frame {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 10px;
+  border: 2px solid var(--c-primary);
+  border-radius: 50%;
+  overflow: hidden;
+  background: #000;
+  box-shadow: 0 0 10px var(--c-primary-dim);
+  transition: 0.3s;
+}
+
+.avatar-frame:hover {
+  box-shadow: 0 0 15px var(--c-primary);
+  transform: scale(1.05);
+}
+
+.avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.upload-btn {
+  display: inline-block;
+  font-size: 0.6rem; /* 字體調小一點 */
+  color: var(--c-text);
+  background: rgba(255, 255, 255, 0.05);
+  padding: 4px 8px;
+  cursor: pointer;
+  border: 1px solid #444;
+  transition: 0.2s;
+  margin-top: 5px;
+}
+
+.upload-btn:hover {
+  border-color: var(--c-primary);
+  color: var(--c-primary);
+}
+
+.user-info {
+  margin-bottom: 15px;
+  border-top: 1px solid #333;
+  padding-top: 10px;
+}
+
+/* 暱稱大字 */
+.display-name {
+  color: var(--c-primary);
+  font-size: 1rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  margin-bottom: 3px;
+  text-shadow: 0 0 8px var(--c-primary-dim);
+  font-family: var(--font-hud);
+  word-wrap: break-word; /* 防止名字太長跑版 */
+}
+
+/* ID 小字 */
+.id-code {
+  color: var(--c-text-dim);
+  font-size: 0.7rem;
+  font-family: var(--font-cyber);
+}
+
+/* 登出按鈕 */
+.logout-btn {
+  width: 100%;
+  padding: 5px;
+  font-size: 0.7rem;
+  background: transparent;
+  border: 1px solid var(--c-secondary);
+  color: var(--c-secondary);
+  cursor: pointer;
+  letter-spacing: 1px;
+  transition: 0.2s;
+}
+
+.logout-btn:hover {
+  background: var(--c-secondary);
+  color: #fff;
+  box-shadow: 0 0 10px var(--c-secondary-dim);
+}
+
+/* 📱 手機版 RWD 設定 (當螢幕小於 768px 時) */
+@media (max-width: 768px) {
+  .profile-panel {
+    position: relative; /* 改回相對定位 */
+    top: auto;
+    right: auto;
+    width: 100%;
+    max-width: 300px;
+    margin: 0 auto 20px auto; /* 置中並與下方內容保持距離 */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+  }
+  
+  .avatar-frame {
+    width: 50px;
+    height: 50px;
+    margin: 0;
+  }
+  
+  .upload-btn { display: none; } /* 手機版隱藏上傳按鈕，節省空間 */
+  
+  .user-info {
+    border: none;
+    padding: 0;
+    margin: 0 10px;
+    text-align: left;
+    flex-grow: 1;
+  }
+  
+  .logout-btn {
+    width: auto;
+    padding: 5px 10px;
+  }
+}

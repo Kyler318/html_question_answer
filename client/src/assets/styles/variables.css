@@ -1,0 +1,24 @@
+:root {
+  /* Cyberpunk Palette */
+  --c-bg: #0b0c15;
+  --c-panel: rgba(15, 16, 26, 0.95);
+  
+  --c-primary: #00f3ff;   /* Neon Cyan */
+  --c-primary-dim: rgba(0, 243, 255, 0.1);
+  
+  --c-secondary: #ff0055; /* Neon Pink */
+  --c-secondary-dim: rgba(255, 0, 85, 0.1);
+  
+  --c-success: #2ecc71;   /* Green */
+  --c-warning: #f1c40f;   /* Yellow */
+  --c-text: #ffffff;
+  --c-text-dim: #888888;
+  
+  /* Fonts */
+  --font-cyber: 'Courier New', Courier, monospace; /* 打字機風格 */
+  --font-hud: 'Arial Black', sans-serif;           /* 粗體抬頭 */
+  
+  /* Borders & Shadows */
+  --border-glow: 0 0 10px rgba(0, 243, 255, 0.3);
+  --border-glow-red: 0 0 10px rgba(255, 0, 85, 0.3);
+}
