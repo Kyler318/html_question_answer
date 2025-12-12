@@ -1,6 +1,8 @@
+/* src/assets/styles/app.css */
+
 .app-container {
   width: 100%;
-  max-width: 800px; /* 放寬一點 */
+  max-width: 900px; /* 放寬一點以容納遊戲畫面 */
   margin: 40px auto;
   padding: 20px;
   position: relative;
@@ -27,11 +29,23 @@
   font-size: 0.9rem;
 }
 
+/* 內容區塊 */
 .content-box {
-  background: var(--c-panel);
-  padding: 2rem;
-  border: 1px solid rgba(0, 243, 255, 0.2);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-  backdrop-filter: blur(5px);
+  /* ✨ 修改：背景改為透明，移除陰影，因為子組件(Lobby)自己有框了 */
+  background: transparent;
+  padding: 0;
+  border: none;
+  box-shadow: none;
   min-height: 500px;
+}
+
+/* ✨ 新增：載入中文字動畫 */
+.loading-text { 
+  text-align: center; 
+  color: var(--c-primary); 
+  font-size: 1.5rem; 
+  animation: pulse 1s infinite; 
+  margin-top: 100px;
+  font-family: var(--font-hud);
+  letter-spacing: 2px;
 }

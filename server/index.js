@@ -1,37 +1,82 @@
-// server/index.js
+const express = require('express');
+const http = require('http');
+const { Server } = require('socket.io');
+const cors = require('cors');
 
-// ... 前面的 code 不變 ...
+const app = express();
+
+// 允許跨域連線
+app.use(cors({
+    origin: "*", 
+    methods: ["GET", "POST"]
+}));
+
+const server = http.createServer(app);
+
+const io = new Server(server, {
+    cors: {
+        origin: "*",
+        methods: ["GET", "POST"]
+    }
+});
+
+// 遊戲房間資料
+const rooms = {};
+
+// 輔助函式：產生不重複的 4 位數房間號
+function generateRoomId() {
+    let id;
+    do {
+        // 產生 1000 ~ 9999 之間的亂數
+        id = Math.floor(1000 + Math.random() * 9000).toString();
+    } while (rooms[id]); // 如果已存在，就重跑迴圈
+    return id;
+}
 
 io.on('connection', (socket) => {
     console.log('User Connected:', socket.id);
 
-    // 加入房間
-    socket.on('joinRoom', ({ mode, playerName, photoURL }) => {
-        let roomId = null;
-        
-        // 找房間邏輯... (維持原本)
-        for (let id in rooms) {
-            if (rooms[id].mode === mode && rooms[id].players.length < mode && !rooms[id].isPlaying) {
-                roomId = id;
-                break;
-            }
+    // --- 1. 創建房間 ---
+    socket.on('createRoom', ({ mode, playerName, photoURL }) => {
+        const roomId = generateRoomId();
+
+        rooms[roomId] = {
+            id: roomId,
+            mode: mode,
+            players: [],
+            readyStatus: {},
+            scores: {},
+            isPlaying: false,
+            currentQuestion: null,
+            roundAnswers: {},   // 記錄該回合誰回答了
+            roundTimer: null    // 伺服器端倒數計時器
+        };
+
+        joinRoomLogic(socket, roomId, playerName, photoURL);
+    });
+
+    // --- 2. 加入房間 ---
+    socket.on('joinRoom', ({ roomId, playerName, photoURL }) => {
+        const room = rooms[roomId];
+
+        if (!room) {
+            socket.emit('errorMsg', '錯誤：房間不存在 (ROOM NOT FOUND)');
+            return;
+        }
+        if (room.players.length >= room.mode) {
+            socket.emit('errorMsg', '錯誤：房間已滿 (ROOM FULL)');
+            return;
+        }
+        if (room.isPlaying) {
+            socket.emit('errorMsg', '錯誤：遊戲已開始 (GAME STARTED)');
+            return;
         }
 
-        if (!roomId) {
-            roomId = Math.random().toString(36).substring(7);
-            rooms[roomId] = {
-                id: roomId,
-                mode: mode,
-                players: [],
-                readyStatus: {},
-                scores: {},
-                isPlaying: false,
-                currentQuestion: null,
-                roundAnswers: {},   // ✨ 新增：記錄這一題誰答了
-                roundTimer: null    // ✨ 新增：記錄計時器
-            };
-        }
+        joinRoomLogic(socket, room.id, playerName, photoURL);
+    });
 
+    // 共用的加入邏輯
+    function joinRoomLogic(socket, roomId, playerName, photoURL) {
         socket.join(roomId);
 
         const newPlayer = {
@@ -45,47 +90,77 @@ io.on('connection', (socket) => {
         rooms[roomId].scores[socket.id] = 0;
         rooms[roomId].readyStatus[socket.id] = false;
 
+        // 通知房間所有人更新列表
         io.to(roomId).emit('updateRoom', rooms[roomId]);
-    });
+    }
 
-    // 玩家準備 (維持原本)
+    // --- 3. 玩家準備 ---
     socket.on('playerReady', (roomId) => {
         if (!rooms[roomId]) return;
         rooms[roomId].readyStatus[socket.id] = true;
         io.to(roomId).emit('updateRoom', rooms[roomId]);
 
+        // 檢查是否所有人都準備好了
         const allReady = rooms[roomId].players.every(p => rooms[roomId].readyStatus[p.id]);
-        if (allReady && rooms[roomId].players.length > 1) {
+        
+        // 至少兩人才能開始 (或是 1v1 模式下等到兩人)
+        if (allReady && rooms[roomId].players.length > 1) { 
             rooms[roomId].isPlaying = true;
             io.to(roomId).emit('gameStart');
-            startRound(roomId); // 改名函式
+            startRound(roomId);
         }
     });
 
-    // ✨✨✨ 重點修改：提交答案 ✨✨✨
+    // --- 4. 提交答案 (回合制邏輯) ---
     socket.on('submitAnswer', ({ roomId, answerIndex }) => {
         const room = rooms[roomId];
         if (!room || !room.isPlaying) return;
 
-        // 1. 記錄這個玩家的答案 (先不計分，只記錄)
+        // 記錄答案 (暫不計分)
         room.roundAnswers[socket.id] = answerIndex;
 
-        // 2. 檢查是否「所有玩家」都回答了
+        // 檢查是否「所有人」都回答了
         const totalPlayers = room.players.length;
         const answeredCount = Object.keys(room.roundAnswers).length;
 
-        // 如果大家都回答了，立刻結算
         if (answeredCount === totalPlayers) {
             finishRound(roomId);
         }
     });
 
+    // --- 5. 斷線處理 ---
     socket.on('disconnect', () => {
-        // ... 斷線處理 (建議加上清除 Timer 邏輯)
+        console.log('User Disconnected', socket.id);
+        
+        for (let roomId in rooms) {
+            const room = rooms[roomId];
+            const playerIndex = room.players.findIndex(p => p.id === socket.id);
+            
+            if (playerIndex !== -1) {
+                // 移除玩家
+                room.players.splice(playerIndex, 1);
+                delete room.readyStatus[socket.id];
+                delete room.scores[socket.id];
+                delete room.roundAnswers[socket.id]; // 移除答案記錄
+                
+                if (room.players.length === 0) {
+                    // 房間空了，刪除房間
+                    if (room.roundTimer) clearTimeout(room.roundTimer);
+                    delete rooms[roomId];
+                    console.log(`Room ${roomId} deleted.`);
+                } else {
+                    // 通知剩餘玩家
+                    io.to(roomId).emit('updateRoom', room);
+                    // 如果遊戲中有人斷線，可能會觸發提早結算(視需求而定，這裡暫不處理)
+                }
+                break;
+            }
+        }
     });
 });
 
-// ✨✨✨ 新增：開始新的一回合 ✨✨✨
+// --- 遊戲流程控制函式 ---
+
 function startRound(roomId) {
     const room = rooms[roomId];
     if (!room) return;
@@ -95,65 +170,59 @@ function startRound(roomId) {
     room.currentQuestion = randomQ;
     room.roundAnswers = {}; // 清空上一題答案
 
-    // 2. 發送題目給前端
+    // 2. 發送題目
     io.to(roomId).emit('newQuestion', randomQ);
 
-    // 3. 設定伺服器計時器 (例如 12 秒後強制結算)
-    // 稍微比前端倒數久一點點 (buffer)，以免網路延遲
+    // 3. 設定強制結算計時器 (15秒)
     if (room.roundTimer) clearTimeout(room.roundTimer);
-    
     room.roundTimer = setTimeout(() => {
-        finishRound(roomId); // 時間到，強制結算
-    }, 12000); // 12秒
+        finishRound(roomId);
+    }, 15000);
 }
 
-// ✨✨✨ 新增：結算回合 ✨✨✨
 function finishRound(roomId) {
     const room = rooms[roomId];
     if (!room) return;
 
-    // 清除計時器 (避免重複執行)
     if (room.roundTimer) clearTimeout(room.roundTimer);
 
     const correctIndex = room.currentQuestion.correct;
 
-    // 1. 計算分數
+    // 計算分數
     room.players.forEach(player => {
-        const playerAnswer = room.roundAnswers[player.id];
-        
-        // 如果有回答 且 答對
-        if (playerAnswer !== undefined && playerAnswer === correctIndex) {
+        const ans = room.roundAnswers[player.id];
+        if (ans !== undefined && ans === correctIndex) {
             room.scores[player.id] += 100;
         }
-        // 沒回答或答錯就不加分
     });
 
-    // 2. 發送結果給前端 (包含正確答案、所有人的新分數)
+    // 發送結果
     io.to(roomId).emit('roundResult', {
         scores: room.scores,
-        correctAnswer: correctIndex,
-        playerAnswers: room.roundAnswers // (選擇性) 可以傳給前端顯示誰選了什麼
+        correctAnswer: correctIndex
     });
 
-    // 3. 等待幾秒後，進入下一題 或 結束遊戲
+    // 4秒後下一題或結束
     setTimeout(() => {
-        // 檢查是否有人達到獲勝分數 (例如 500)
-        const isGameOver = Object.values(room.scores).some(score => score >= 500);
-
+        if (!rooms[roomId]) return; // 防止房間已刪除
+        
+        const isGameOver = Object.values(room.scores).some(score => score >= 500); // 500分獲勝
         if (isGameOver) {
             io.to(roomId).emit('gameOver', room.scores);
             room.isPlaying = false;
         } else {
-            startRound(roomId); // 下一題
+            startRound(roomId);
         }
-    }, 4000); // 4秒展示結果時間
+    }, 4000);
 }
 
-// 題目資料 (維持原本)
+// 題庫
 const questions = [
     { id: 1, category: 'HTML', question: '哪個標籤用於定義超連結？', options: ['<link>', '<a>', '<href>', '<url>'], correct: 1 },
     { id: 2, category: 'CSS', question: '如何改變文字顏色？', options: ['font-color', 'text-color', 'color', 'background'], correct: 2 },
-    { id: 3, category: 'JS', question: 'console.log 輸出在哪裡？', options: ['瀏覽器視窗', '控制台', '伺服器日誌', '資料庫'], correct: 1 },
+    { id: 3, category: 'JS', question: 'console.log 輸出在哪？', options: ['瀏覽器視窗', '控制台', '伺服器日誌', '資料庫'], correct: 1 },
+    { id: 4, category: 'CSS', question: 'Flexbox 的主軸對齊是？', options: ['align-items', 'justify-content', 'flex-direction', 'gap'], correct: 1 },
+    { id: 5, category: 'HTML', question: '最大的標題標籤是？', options: ['<h1>', '<h6>', '<header>', '<head>'], correct: 0 },
 ];
 
 const PORT = process.env.PORT || 3000;

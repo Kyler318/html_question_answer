@@ -12,15 +12,18 @@
       <Auth />
     </div>
 
-    <!-- 👇 修改這裡：登入後的區塊 -->
+    <!-- 登入後的區塊 -->
     <div v-else>
-      <!-- 1. 把 UserProfile 移到這裡 (content-box 的外面) -->
       <UserProfile />
 
-      <!-- 2. 這裡只保留遊戲內容 -->
       <div class="content-box">
         <div v-if="!joinedRoom">
-          <Lobby :user="currentUser" @join="handleJoin" />
+          <!-- 綁定 create 和 join 事件 -->
+          <Lobby 
+            :user="currentUser" 
+            @create="handleCreate" 
+            @join="handleJoin" 
+          />
         </div>
         <div v-else>
           <GameRoom :socket="socket" :roomInfo="roomInfo" />
@@ -42,11 +45,7 @@ import GameRoom from './components/GameRoom.vue';
 import Auth from './components/Auth.vue';
 import UserProfile from './components/UserProfile.vue';
 
-// ----------------------------------------------------
-// 【關鍵修改】自動判斷網址
-// 如果是在 Vercel (Production)，它會讀取我們設定的環境變數
-// 如果是在本地 (Localhost)，它會讀取 .env 檔案裡的 http://localhost:3000
-// ----------------------------------------------------
+// 連線設定：Production 用環境變數，Local 用 localhost
 const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 const socket = io(apiUrl);
 
@@ -61,17 +60,32 @@ onMounted(() => {
     currentUser.value = user;
     loading.value = false;
   });
+
+  // 監聽伺服器回傳的錯誤 (例如房間不存在)
+  socket.on('errorMsg', (msg) => {
+    alert(msg);
+  });
 });
 
-const handleJoin = (payload) => {
-  // 這裡可以把頭像 URL 也傳給後端
+// 處理創建房間
+const handleCreate = (payload) => {
   const playerData = {
     ...payload,
-    photoURL: currentUser.value.photoURL // 傳送頭像
+    photoURL: currentUser.value?.photoURL || null
+  };
+  socket.emit('createRoom', playerData);
+};
+
+// 處理加入房間
+const handleJoin = (payload) => {
+  const playerData = {
+    ...payload,
+    photoURL: currentUser.value?.photoURL || null
   };
   socket.emit('joinRoom', playerData);
 };
 
+// 房間資訊更新 (成功加入後)
 socket.on('updateRoom', (data) => {
   roomInfo.value = data;
   joinedRoom.value = true;

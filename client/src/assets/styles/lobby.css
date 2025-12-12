@@ -1,16 +1,25 @@
+/* src/assets/styles/lobby.css */
+
 .lobby-container {
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100%;
   position: relative;
+  width: 100%;
 }
 
 .cyber-box {
-  width: 100%;
-  max-width: 400px;
+  background: var(--c-panel);
+  border: 1px solid var(--c-primary);
+  padding: 30px;
+  box-shadow: var(--border-glow);
   position: relative;
   overflow: hidden;
+  backdrop-filter: blur(5px);
+  width: 100%;
+  max-width: 500px; /* 稍微加寬以容納新介面 */
+  margin: 0 auto;
 }
 
 /* 裝飾性掃描線 */
@@ -62,7 +71,7 @@
 }
 
 .mode-group {
-  margin-top: 30px;
+  margin-top: 10px;
 }
 
 .grid-btns {
@@ -86,12 +95,7 @@
   border-color: var(--c-primary);
   transform: translateX(5px);
   box-shadow: -5px 0 0 var(--c-primary);
-}
-
-.mode-btn.danger:hover {
-  border-color: var(--c-secondary);
-  box-shadow: -5px 0 0 var(--c-secondary);
-  background: linear-gradient(90deg, transparent 0%, var(--c-secondary-dim) 100%);
+  background: rgba(0, 243, 255, 0.1);
 }
 
 .mode-btn .glitch-text {
@@ -107,4 +111,73 @@
 }
 .mode-btn:hover .sub {
     color: #aaa;
+}
+
+/* --- ✨ 以下是新增的房間系統樣式 --- */
+
+/* 選中的模式資訊 */
+.selected-info {
+  text-align: center;
+  color: var(--c-primary);
+  margin-bottom: 20px;
+  font-family: var(--font-hud);
+  letter-spacing: 2px;
+  border-bottom: 1px solid #333;
+  padding-bottom: 10px;
+}
+
+/* 房號輸入框 (大字體、黃色警告色) */
+.room-input {
+  font-size: 2rem !important;
+  text-align: center;
+  letter-spacing: 10px;
+  color: var(--c-warning) !important;
+  border-color: var(--c-warning) !important;
+  font-family: var(--font-cyber);
+  font-weight: bold;
+}
+.room-input:focus {
+  box-shadow: 0 0 15px rgba(241, 196, 15, 0.3) !important;
+}
+
+/* 創建房間按鈕 (綠色) */
+.mode-btn.create { border-color: var(--c-success); }
+.mode-btn.create:hover { 
+  background: rgba(46, 204, 113, 0.1); 
+  box-shadow: -5px 0 0 var(--c-success);
+}
+
+/* 加入房間按鈕 (維持青色) */
+.mode-btn.join { border-color: var(--c-primary); }
+
+/* 確認連線按鈕 (黃色) */
+.mode-btn.confirm { 
+  border-color: var(--c-warning); 
+  color: var(--c-warning); 
+  justify-content: center;
+}
+.mode-btn.confirm:hover { 
+  background: rgba(241, 196, 15, 0.1); 
+  box-shadow: 0 0 15px rgba(241, 196, 15, 0.3);
+  transform: scale(1.02);
+}
+
+/* 危險/返回按鈕 (原本的 danger 加上 back) */
+.mode-btn.danger:hover {
+  border-color: var(--c-secondary);
+  box-shadow: -5px 0 0 var(--c-secondary);
+  background: linear-gradient(90deg, transparent 0%, var(--c-secondary-dim) 100%);
+}
+
+.mode-btn.back {
+  border-color: #666;
+  color: #888;
+  justify-content: center;
+}
+.mode-btn.back:hover {
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+  border-color: #fff;
+  box-shadow: none;
+  transform: none;
 }
