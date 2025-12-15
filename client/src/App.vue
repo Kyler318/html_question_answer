@@ -91,10 +91,3 @@ socket.on('updateRoom', (data) => {
   joinedRoom.value = true;
 });
 </script>
-
-<style scoped>
-.loading-text { 
-  text-align: center; color: var(--c-primary); 
-  font-size: 1.5rem; animation: pulse 1s infinite; margin-top: 100px;
-}
-</style>

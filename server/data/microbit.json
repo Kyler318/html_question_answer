@@ -1,0 +1,30 @@
+[
+  {
+    "id": 101,
+    "category": "Micro:bit",
+    "question": "Micro:bit 的 LED 矩陣是多少乘多少？",
+    "options": ["3x3", "4x4", "5x5", "8x8"],
+    "answer": 2
+  },
+  {
+    "id": 102,
+    "category": "Micro:bit",
+    "question": "在 MakeCode 中，哪個積木可以用來顯示文字？",
+    "options": ["show leds", "show string", "show icon", "clear screen"],
+    "answer": 1
+  },
+  {
+    "id": 103,
+    "category": "Micro:bit",
+    "question": "Micro:bit 上標示為 'A' 和 'B' 的是什麼？",
+    "options": ["LED燈", "按鈕", "觸控感應器", "USB接口"],
+    "answer": 1
+  },
+  {
+    "id": 104,
+    "category": "Micro:bit",
+    "question": "如何重置 Micro:bit 程式？",
+    "options": ["搖晃它", "按下背面的 Reset 按鈕", "同時按 A+B", "無法重置"],
+    "answer": 1
+  }
+]

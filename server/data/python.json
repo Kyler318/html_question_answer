@@ -1,0 +1,30 @@
+[
+  {
+    "id": 201,
+    "category": "Python",
+    "question": "Python 中用來輸出文字到螢幕的指令是？",
+    "options": ["console.log()", "print()", "echo()", "write()"],
+    "answer": 1
+  },
+  {
+    "id": 202,
+    "category": "Python",
+    "question": "哪一種變數型態代表「整數」？",
+    "options": ["str", "float", "int", "bool"],
+    "answer": 2
+  },
+  {
+    "id": 203,
+    "category": "Python",
+    "question": "在 Python 中，縮排 (Indentation) 的作用是什麼？",
+    "options": ["美觀", "註解", "定義程式區塊 (Block)", "沒有作用"],
+    "answer": 2
+  },
+  {
+    "id": 204,
+    "category": "Python",
+    "question": "如何定義一個函式？",
+    "options": ["func myFunc():", "def myFunc():", "function myFunc() {}", "create myFunc:"],
+    "answer": 1
+  }
+]

@@ -1,3 +1,5 @@
+/* src/assets/styles/gameroom.css */
+
 .game-room {
   position: relative;
   height: 100%;
@@ -44,6 +46,16 @@
 .player-card .p-status { font-size: 0.7rem; color: var(--c-text-dim); }
 .player-card.ready .p-status { color: var(--c-primary); }
 
+/* 頭像樣式 */
+.p-avatar {
+    width: 30px; 
+    height: 30px; 
+    border-radius: 50%; 
+    margin-bottom: 5px;
+    object-fit: cover;
+    border: 1px solid var(--c-primary);
+}
+
 /* 題目區域 */
 .question-box {
   margin-top: 20px;
@@ -62,6 +74,15 @@
   text-shadow: 0 2px 4px rgba(0,0,0,0.5);
 }
 
+/* 等待對手提示 */
+.waiting-msg {
+  text-align: center;
+  color: var(--c-primary);
+  margin-top: 20px;
+  animation: pulse 1.5s infinite;
+  letter-spacing: 2px;
+}
+
 /* 計時器條 */
 .timer-container {
   width: 100%;
@@ -74,7 +95,6 @@
 .timer-bar {
   height: 100%;
   width: 100%;
-  /* 動畫時間由 Vue 的 style 綁定或預設 */
   animation: timer-shrink 10s linear forwards; 
 }
 .timer-placeholder {
@@ -90,7 +110,7 @@
 /* 選項按鈕 grid */
 .options-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr; /* 兩欄排列 */
+  grid-template-columns: 1fr 1fr;
   gap: 15px;
 }
 @media (max-width: 600px) {
@@ -198,48 +218,11 @@
 }
 .final-score { font-family: var(--font-hud); }
 
-/* ...原有代碼... */
-
-/* 分數顯示容器需設定 relative 以便定位浮動文字 */
+/* 分數顯示與彈出動畫 */
 .score-tag {
   position: relative;
 }
 
-/* 浮動加分文字 */
-.score-popup {
-  position: absolute;
-  top: 100%;
-  right: 0;
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: var(--c-success); /* 使用綠色 */
-  text-shadow: 0 0 10px var(--c-success);
-  pointer-events: none;
-  animation: float-up-fade 2s ease-out forwards;
-  white-space: nowrap;
-}
-
-/* 上浮淡出動畫 */
-@keyframes float-up-fade {
-  0% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-  50% {
-    transform: translateY(-20px) scale(1.2);
-  }
-  100% {
-    opacity: 0;
-    transform: translateY(-40px) scale(1);
-  }
-}
-
-/* 分數顯示容器 */
-.score-tag {
-  position: relative;
-}
-
-/* 浮動加分文字動畫 */
 .score-popup {
   position: absolute;
   top: 100%;

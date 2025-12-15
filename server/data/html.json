@@ -1,0 +1,30 @@
+[
+  {
+    "id": 301,
+    "category": "HTML",
+    "question": "HTML 中最大的標題標籤是？",
+    "options": ["<h6>", "<head>", "<h1>", "<title>"],
+    "answer": 2
+  },
+  {
+    "id": 302,
+    "category": "CSS",
+    "question": "CSS 中用來改變文字顏色的屬性是？",
+    "options": ["font-color", "text-color", "color", "background-color"],
+    "answer": 2
+  },
+  {
+    "id": 303,
+    "category": "HTML",
+    "question": "<a> 標籤的 href 屬性是用來做什麼的？",
+    "options": ["設定圖片路徑", "設定連結網址", "設定文字大小", "設定背景顏色"],
+    "answer": 1
+  },
+  {
+    "id": 304,
+    "category": "CSS",
+    "question": "如何在 CSS 選取 id 為 'box' 的元素？",
+    "options": [".box", "#box", "box", "*box"],
+    "answer": 1
+  }
+]
