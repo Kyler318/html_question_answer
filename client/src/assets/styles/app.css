@@ -2,7 +2,7 @@
 
 .app-container {
   width: 100%;
-  max-width: 900px; /* 放寬一點以容納遊戲畫面 */
+  max-width: 900px;
   margin: 40px auto;
   padding: 20px;
   position: relative;
@@ -29,9 +29,7 @@
   font-size: 0.9rem;
 }
 
-/* 內容區塊 */
 .content-box {
-  /* ✨ 修改：背景改為透明，移除陰影，因為子組件(Lobby)自己有框了 */
   background: transparent;
   padding: 0;
   border: none;
@@ -39,7 +37,6 @@
   min-height: 500px;
 }
 
-/* ✨ 新增：載入中文字動畫 */
 .loading-text { 
   text-align: center;
   color: var(--c-primary);

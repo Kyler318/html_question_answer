@@ -186,18 +186,3 @@ props.socket.on('gameOver', (finalScores) => {
   audio.bgm.pause();
 });
 </script>
-
-<style scoped>
-/* 補上等待文字的樣式 */
-.waiting-msg {
-  text-align: center;
-  color: var(--c-primary);
-  margin-top: 20px;
-  animation: pulse 1.5s infinite;
-  letter-spacing: 2px;
-}
-
-.p-avatar {
-    width: 30px; height: 30px; border-radius: 50%; margin-bottom: 5px;
-}
-</style>
